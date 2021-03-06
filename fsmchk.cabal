@@ -1,4 +1,4 @@
-name:                literateStack
+name:                fsmchk
 version:             0.0.1.0
 -- synopsis:
 -- description:
@@ -29,7 +29,7 @@ executable fsmchk
   main-is:             Main.lhs
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   build-depends:       base
-                     , literateStack
+                     , fsmchk
   default-language:    Haskell2010
 
 test-suite FSM-check-test
