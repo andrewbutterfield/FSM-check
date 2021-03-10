@@ -1,2 +1,4 @@
 MAIN.pdf
 stack.yaml.lock
+*.out
+
