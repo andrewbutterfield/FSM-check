@@ -179,6 +179,47 @@ splitBy' s sc ssc (c:cs)
 \end{code}
 
 \newpage
+\chapter{COS Practical 2}
+
+From Concurrency and Operating Systems Practical 2
+we get \texttt{printf} output of the form:
+
+\begin{verbatim}
+@H-YPHENATEDWORD
+@WORD number
+@WORD=number.
+\end{verbatim}
+
+We want an event whose name is the word (hyphenated, or otherwise),
+with an optional number.
+
+\begin{code}
+newtype COSP2Num = P2N (Maybe Int) deriving (Eq, Ord)
+
+type COSP2Event = Event COSP2Num
+
+instance EventParser COSP2Num where
+  eparse ('@':rest)                   =  cosp2parse $ words $ map noeqdot rest
+  eparse _                            =  fail notACOSP2Event
+
+noeqdot '='  =  ' '
+noeqdot '.'  =  ' '
+noeqdot c    =  c
+
+cosp2parse [w]                        =  return $ E w $ P2N   Nothing
+cosp2parse [w,num] | all isDigit num  =  return $ E w $ P2N $ Just $ read num
+cosp2parse _                          =  fail notACOSP2Event
+
+notACOSP2Event = "COSP2Num Event not recognised"
+
+showCOSP2 :: COSP2Event -> String
+showCOSP2 (E str (P2N (Just num)))  =  str ++ " " ++ show num
+showCOSP2 (E str _)                 =  str
+\end{code}
+
+
+
+\newpage
 \chapter{Mainline}
 
 \begin{code}
@@ -186,9 +227,11 @@ main :: IO ()
 main
   = do putStrLn name_version
        runs <- fmap lines $ readFile "test/run.log"
+       let runEvts = catMaybes $ map eparse runs
+       putStrLn ("Run Events:\n"++unlines (map showCOSP2 runEvts))
        putStrLn ("run.log: "++show (length runs)++" events.")
        calls <- fmap lines $ readFile "test/code.log"
-       putStrLn ("code.log: "++show (length calls)++" events.")
        let callEvts = eventDataSort $ catMaybes $ map eparse calls
        putStrLn ("Call Events:\n"++unlines (map showCE callEvts))
+       putStrLn ("code.log: "++show (length calls)++" events.")
 \end{code}
