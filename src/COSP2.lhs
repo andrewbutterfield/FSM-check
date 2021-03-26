@@ -15,9 +15,11 @@ module COSP2 (
 , checkProduceActivity
 , checkConsumeActivity
 , checkThreadMgmt
+, fullAnalysisCOSP2IdentifierUsage
 )
 where
 import Data.Char
+import Data.Maybe
 import Data.Set (Set)
 import qualified Data.Set as S
 
@@ -301,6 +303,7 @@ checkThreadMgmt parsedevents
 
 
 
+
 \newpage
 \subsection{STUFF}
 
@@ -323,7 +326,46 @@ cosP2ids = S.fromList [
   , "Produce"
   , "consumeT"
   , "Consume"
+  , "return"
+  , "sleep"
   , "main"
   , "pthread_join"
   ]
+\end{code}
+
+\newpage
+\section{Full Identifier Usage Analysis}
+
+\begin{code}
+fullAnalysisCOSP2IdentifierUsage :: String -> IO ()
+fullAnalysisCOSP2IdentifierUsage filename
+  = do putStrLn ("\n===================================\n ANALYSIS OF "
+                    ++filename++
+                 "\n-----------")
+
+       calls <- fmap lines $ readFile filename
+       let callEvts = catMaybes $ map eparse calls
+       putStrLn ("Call Events:\n"++unlines (map showCE callEvts))
+       let callNames = prepareCOSP2IdentUsage callEvts
+       putStrLn ("Call Names:\n"++unlines (map showEventName callNames))
+
+       let (laststate,remainingEvents) = checkMutexInit callEvts
+       putStrLn ("MUTEX-INIT\nLast State: "++laststate)
+       putStrLn ("Remaining:\n"++unlines (map showEventName remainingEvents))
+
+       let (laststate,remainingEvents) = checkCondInit callEvts
+       putStrLn ("COND-INIT\nLast State: "++laststate)
+       putStrLn ("Remaining:\n"++unlines (map showEventName remainingEvents))
+
+       let (laststate,remainingEvents) = checkProduceActivity callEvts
+       putStrLn ("PRODUCER-ACTIVITY\nLast State: "++laststate)
+       putStrLn ("Remaining:\n"++unlines (map showEventName remainingEvents))
+
+       let (laststate,remainingEvents) = checkConsumeActivity callEvts
+       putStrLn ("CONSUMER-ACTIVITY\nLast State: "++laststate)
+       putStrLn ("Remaining:\n"++unlines (map showEventName remainingEvents))
+
+       let (laststate,remainingEvents) = checkThreadMgmt callEvts
+       putStrLn ("THREAD-MGMT\nLast State: "++laststate)
+       putStrLn ("Remaining:\n"++unlines (map showEventName remainingEvents))
 \end{code}
