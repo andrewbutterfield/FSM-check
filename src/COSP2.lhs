@@ -271,6 +271,8 @@ threadMgmtEvents :: Set (Event ())
 threadMgmtEvents = S.fromList $ map nameOnly [
     "main"
   , "pthread_create"
+  , "Produce"
+  , "Consume"
   , "pthread_join"
   ]
 threadMgmtOnly = restrictEvents threadMgmtEvents
@@ -281,9 +283,11 @@ threadMgmtSpec :: [FSMTriple ()]
 threadMgmtSpec = map liftT [
     ("S0","main","S1")
   , ("S1","pthread_create","S2")
-  , ("S2","pthread_create","S3")
-  , ("S3","pthread_join","S4")
-  , ("S4","pthread_join","S5")
+  , ("S2","Produce","S3")
+  , ("S3","pthread_create","S4")
+  , ("S4","Consume","S5")
+  , ("S5","pthread_join","S6")
+  , ("S6","pthread_join","S7")
   ]
 threadMgmtFSM = buildNDFSM threadMgmtSpec
 \end{code}
@@ -303,22 +307,23 @@ checkThreadMgmt parsedevents
 \begin{code}
 cosP2ids :: Set String
 cosP2ids = S.fromList [
-    "PTHREAD_MUTEX_INITIALIZER"
+    "pthread_mutex_t"
+  , "pthread_cond_t"
+  , "PTHREAD_MUTEX_INITIALIZER"
   , "PTHREAD_COND_INITIALIZER"
-  , "produceT"
-  , "Produce"
-  , "pthread_mutex_lock"
-  , "pthread_mutex_unlock"
-  , "produceT"
-  , "pthread_cond_wait"
-  , "consumeT"
-  , "Consume"
-  , "pthread_cond_signal"
-  , "pthread_exit"
-  , "main"
   , "pthread_mutex_init"
   , "pthread_cond_init"
   , "pthread_create"
+  , "pthread_mutex_lock"
+  , "pthread_mutex_unlock"
+  , "pthread_cond_wait"
+  , "pthread_cond_signal"
+  , "pthread_exit"
+  , "produceT"
+  , "Produce"
+  , "consumeT"
+  , "Consume"
+  , "main"
   , "pthread_join"
   ]
 \end{code}
