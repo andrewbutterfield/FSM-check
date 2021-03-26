@@ -1,0 +1,30 @@
+echo "p2idlookup" > code.log
+# pthread types
+ack -H --column --noheading pthread_mutex_t practical2.c >> code.log
+ack -H --column --noheading pthread_cond_t practical2.c >> code.log
+
+# pthread initialisers
+ack -H --column --noheading PTHREAD_MUTEX_INITIALIZER practical2.c >> code.log
+ack -H --column --noheading PTHREAD_COND_INITIALIZER practical2.c >> code.log
+ack -H --column --noheading pthread_mutex_init practical2.c >> code.log
+ack -H --column --noheading pthread_cond_init practical2.c >> code.log
+
+# pthread functions
+ack -H --column --noheading pthread_create practical2.c >> code.log
+ack -H --column --noheading pthread_join practical2.c >> code.log
+ack -H --column --noheading pthread_mutex_lock practical2.c >> code.log
+ack -H --column --noheading pthread_mutex_unlock practical2.c >> code.log
+ack -H --column --noheading pthread_cond_wait practical2.c >> code.log
+ack -H --column --noheading pthread_cond_signal practical2.c >> code.log
+ack -H --column --noheading pthread_exit practical2.c >> code.log
+
+# user threads
+ack -H --column --noheading Produce practical2.c >> code.log
+ack -H --column --noheading Consume practical2.c >> code.log
+
+# user functions
+ack -H --column --noheading produceT practical2.c >> code.log
+ack -H --column --noheading consumeT practical2.c >> code.log
+
+# main program
+ack -H --column --noheading main practical2.c >> code.log

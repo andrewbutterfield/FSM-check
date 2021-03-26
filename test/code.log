@@ -1,23 +1,29 @@
-practical2.c:100:main
-practical2.c:121:Produce
-practical2.c:121:pthread_create
-practical2.c:129:Consume
-practical2.c:129:pthread_create
-practical2.c:137:pthread_join
-practical2.c:139:pthread_join
-practical2.c:19:PTHREAD_MUTEX_INITIALIZER
-practical2.c:20:PTHREAD_MUTEX_INITIALIZER
-practical2.c:23:PTHREAD_COND_INITIALIZER
-practical2.c:28:produceT
-practical2.c:39:Produce
-practical2.c:43:pthread_mutex_lock
-practical2.c:44:pthread_mutex_unlock
-practical2.c:48:produceT
-practical2.c:50:pthread_cond_wait
-practical2.c:54:pthread_mutex_unlock
-practical2.c:64:consumeT
-practical2.c:75:Consume
-practical2.c:82:pthread_mutex_lock
-practical2.c:85:consumeT
-practical2.c:88:pthread_cond_signal
-practical2.c:90:pthread_mutex_unlock
+p2idlookup
+practical2.c:19:1:pthread_mutex_t mutexp = PTHREAD_MUTEX_INITIALIZER ; // protects pnum
+practical2.c:20:1:pthread_mutex_t mutexs = PTHREAD_MUTEX_INITIALIZER ;
+practical2.c:23:1:pthread_cond_t condm = PTHREAD_COND_INITIALIZER;
+practical2.c:19:26:pthread_mutex_t mutexp = PTHREAD_MUTEX_INITIALIZER ; // protects pnum
+practical2.c:20:26:pthread_mutex_t mutexs = PTHREAD_MUTEX_INITIALIZER ;
+practical2.c:23:24:pthread_cond_t condm = PTHREAD_COND_INITIALIZER;
+practical2.c:121:8: 	rc = pthread_create(&prod,NULL,Produce,(void *)0);
+practical2.c:129:8: 	rc = pthread_create(&cons,NULL,Consume,(void *)0);
+practical2.c:137:3:  pthread_join( prod, NULL);
+practical2.c:139:3:  pthread_join( cons, NULL);
+practical2.c:43:3:  pthread_mutex_lock(&mutexp); //locks pnum
+practical2.c:82:5:    pthread_mutex_lock(&mutexp); //locks pnum
+practical2.c:44:5:  //pthread_mutex_unlock(&mutexs);
+practical2.c:54:5:  //pthread_mutex_unlock(&mutexp);//unlocks pnum
+practical2.c:90:5:    pthread_mutex_unlock(&mutexp);//unlocks pnum
+practical2.c:50:5:    pthread_cond_wait(&condm, &mutexp); //waits for signal
+practical2.c:88:5:    pthread_cond_signal(&condm);
+practical2.c:57:3:  pthread_exit(NULL);
+practical2.c:94:3:  pthread_exit(NULL);
+practical2.c:39:7:void *Produce(void *a) {
+practical2.c:121:34: 	rc = pthread_create(&prod,NULL,Produce,(void *)0);
+practical2.c:75:7:void *Consume(void *a) {
+practical2.c:129:34: 	rc = pthread_create(&cons,NULL,Consume,(void *)0);
+practical2.c:28:5:int produceT() {
+practical2.c:48:9:    p = produceT(); //p is pnum
+practical2.c:64:5:int consumeT() {
+practical2.c:85:10:	    p = consumeT();
+practical2.c:100:5:int main (int argc, const char * argv[]) {
