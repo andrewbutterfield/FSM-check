@@ -120,13 +120,9 @@ mutexInitOnly = restrictEvents mutexInitEvents
 mutexInitSpec :: [FSMTriple ()]
 mutexInitSpec = map liftT [
     ("S0","PTHREAD_MUTEX_INITIALIZER","S1")
-  , ("S1","PTHREAD_MUTEX_INITIALIZER","S2")
-  , ("S1","main","S5")
-  , ("S2","main","S6")
-  , ("S0","main","S3")
-  , ("S3","pthread_mutex_init","S4")
-  , ("S4","pthread_mutex_init","S6")
-  , ("S5","pthread_mutex_init","S6")
+  , ("S0","main","S2")
+  , ("S1","main","OK")
+  , ("S2","pthread_mutex_init","OK")
   ]
 mutexInitFSM = buildNDFSM mutexInitSpec
 \end{code}
@@ -157,11 +153,11 @@ condInitSpec = map liftT [
     ("S0","PTHREAD_COND_INITIALIZER","S1")
   , ("S1","PTHREAD_COND_INITIALIZER","S2")
   , ("S1","main","S5")
-  , ("S2","main","S6")
+  , ("S2","main","OK")
   , ("S0","main","S3")
   , ("S3","pthread_cond_init","S4")
-  , ("S4","pthread_cond_init","S6")
-  , ("S5","pthread_cond_init","S6")
+  , ("S4","pthread_cond_init","OK")
+  , ("S5","pthread_cond_init","OK")
   ]
 condInitFSM = buildNDFSM condInitSpec
 \end{code}
@@ -200,10 +196,12 @@ prodActivitySpec = map liftT [
   , ("S2","pthread_cond_wait","S3")
   , ("S3","pthread_cond_signal","S4")
   , ("S4","pthread_mutex_unlock","S5")
+  , ("S5","Produce","OK")
   , ("S1x","pthread_mutex_lock","S2x")
   , ("S2x","pthread_cond_wait","S3x")
-  , ("S3x","pthread_cond_signal","S4x")
-  , ("S4x","pthread_mutex_unlock","S5")
+  , ("S3x","produceT","S4x")
+  , ("S4x","pthread_cond_signal","S5x")
+  , ("S5x","pthread_mutex_unlock","OK")
   ]
 prodActivityFSM = buildNDFSM prodActivitySpec
 \end{code}
@@ -247,10 +245,12 @@ consActivitySpec = map liftT [
   , ("S2","pthread_cond_wait","S3")
   , ("S3","pthread_cond_signal","S4")
   , ("S4","pthread_mutex_unlock","S5")
+  , ("S5","Consume","OK")
   , ("S1x","pthread_mutex_lock","S2x")
   , ("S2x","pthread_cond_wait","S3x")
-  , ("S3x","pthread_cond_signal","S4x")
-  , ("S4x","pthread_mutex_unlock","S5")
+  , ("S3x","consumeT","S4x")
+  , ("S4x","pthread_cond_signal","S5x")
+  , ("S5x","pthread_mutex_unlock","OK")
   ]
 consActivityFSM = buildNDFSM consActivitySpec
 \end{code}
@@ -283,13 +283,15 @@ threadMgmtOnly = restrictEvents threadMgmtEvents
 \begin{code}
 threadMgmtSpec :: [FSMTriple ()]
 threadMgmtSpec = map liftT [
-    ("S0","main","S1")
+    ("S0","Produce","S0")
+  , ("S0","Consume","S0")
+  , ("S0","main","S1")
   , ("S1","pthread_create","S2")
   , ("S2","Produce","S3")
   , ("S3","pthread_create","S4")
   , ("S4","Consume","S5")
   , ("S5","pthread_join","S6")
-  , ("S6","pthread_join","S7")
+  , ("S6","pthread_join","OK")
   ]
 threadMgmtFSM = buildNDFSM threadMgmtSpec
 \end{code}
@@ -299,6 +301,32 @@ checkThreadMgmt parsedevents
   = let names = prepareCOSP2IdentUsage parsedevents
         events = threadMgmtOnly names
     in scan threadMgmtFSM "S0" events
+\end{code}
+
+\newpage
+\subsection{Sleep Avoidance}
+\subsubsection{Events}
+\begin{code}
+noSleepEvents :: Set (Event ())
+noSleepEvents = S.fromList $ map nameOnly [
+    "sleep"
+  ]
+noSleepOnly = restrictEvents noSleepEvents
+\end{code}
+\subsubsection{FSM}
+\begin{code}
+noSleepSpec :: [FSMTriple ()]
+noSleepSpec = map liftT [
+    ("OK","sleep","BAD")
+  ]
+noSleepFSM = buildNDFSM noSleepSpec
+\end{code}
+\subsubsection{Checking}
+\begin{code}
+checkSleepAvoidance parsedevents
+  = let names = prepareCOSP2IdentUsage parsedevents
+        events = noSleepOnly names
+    in scan noSleepFSM "OK" events
 \end{code}
 
 
@@ -367,5 +395,9 @@ fullAnalysisCOSP2IdentifierUsage filename
 
        let (laststate,remainingEvents) = checkThreadMgmt callEvts
        putStrLn ("THREAD-MGMT\nLast State: "++laststate)
+       putStrLn ("Remaining:\n"++unlines (map showEventName remainingEvents))
+
+       let (laststate,remainingEvents) = checkSleepAvoidance callEvts
+       putStrLn ("SLEEP-AVOIDANCE\nLast State: "++laststate)
        putStrLn ("Remaining:\n"++unlines (map showEventName remainingEvents))
 \end{code}
