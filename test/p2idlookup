@@ -1,30 +1,33 @@
-echo "p2idlookup" > code.log
+echo "p2idlookup " $1
+echo "p2idlookup " $1 > $1.log
 # pthread types
-ack -H --column --noheading pthread_mutex_t practical2.c >> code.log
-ack -H --column --noheading pthread_cond_t practical2.c >> code.log
+ack -H --column --noheading pthread_mutex_t $1.c >> $1.log
+ack -H --column --noheading pthread_cond_t $1.c >> $1.log
 
 # pthread initialisers
-ack -H --column --noheading PTHREAD_MUTEX_INITIALIZER practical2.c >> code.log
-ack -H --column --noheading PTHREAD_COND_INITIALIZER practical2.c >> code.log
-ack -H --column --noheading pthread_mutex_init practical2.c >> code.log
-ack -H --column --noheading pthread_cond_init practical2.c >> code.log
+ack -H --column --noheading PTHREAD_MUTEX_INITIALIZER $1.c >> $1.log
+ack -H --column --noheading PTHREAD_COND_INITIALIZER $1.c >> $1.log
+ack -H --column --noheading pthread_mutex_init $1.c >> $1.log
+ack -H --column --noheading pthread_cond_init $1.c >> $1.log
 
 # pthread functions
-ack -H --column --noheading pthread_create practical2.c >> code.log
-ack -H --column --noheading pthread_join practical2.c >> code.log
-ack -H --column --noheading pthread_mutex_lock practical2.c >> code.log
-ack -H --column --noheading pthread_mutex_unlock practical2.c >> code.log
-ack -H --column --noheading pthread_cond_wait practical2.c >> code.log
-ack -H --column --noheading pthread_cond_signal practical2.c >> code.log
-ack -H --column --noheading pthread_exit practical2.c >> code.log
+ack -H --column --noheading pthread_create $1.c >> $1.log
+ack -H --column --noheading pthread_join $1.c >> $1.log
+ack -H --column --noheading pthread_mutex_lock $1.c >> $1.log
+ack -H --column --noheading pthread_mutex_unlock $1.c >> $1.log
+ack -H --column --noheading pthread_cond_wait $1.c >> $1.log
+ack -H --column --noheading pthread_cond_signal $1.c >> $1.log
+ack -H --column --noheading pthread_exit $1.c >> $1.log
 
 # user threads
-ack -H --column --noheading Produce practical2.c >> code.log
-ack -H --column --noheading Consume practical2.c >> code.log
+ack -H --column --noheading Produce $1.c >> $1.log
+ack -H --column --noheading Consume $1.c >> $1.log
 
 # user functions
-ack -H --column --noheading produceT practical2.c >> code.log
-ack -H --column --noheading consumeT practical2.c >> code.log
+ack -H --column --noheading produceT $1.c >> $1.log
+ack -H --column --noheading consumeT $1.c >> $1.log
+ack -H --column --noheading return $1.c >> $1.log
+ack -H --column --noheading sleep $1.c >> $1.log
 
 # main program
-ack -H --column --noheading main practical2.c >> code.log
+ack -H --column --noheading main $1.c >> $1.log
