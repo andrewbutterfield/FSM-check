@@ -15,11 +15,11 @@ int csum;  // sum computed using pnum when consumer runs.
 // We just have one critical variable: pnum
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
-int isPsTurn ; // true, if the Produce needs to produce
-// Producer waits until Consumer has read previous value
+int isPsTurn ; // true, if the producer needs to produce
+// producer waits until consumer has read previous value
 pthread_cond_t condP = PTHREAD_COND_INITIALIZER;
 
-// Consumer waits until Producer has produced new value.
+// consumer waits until producer has produced new value.
 pthread_cond_t condC = PTHREAD_COND_INITIALIZER;
 
 int (*pred)(int); // predicate indicating if pnum is to be consumed
