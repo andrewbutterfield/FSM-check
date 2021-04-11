@@ -6,7 +6,10 @@ LICENSE: BSD3, see file LICENSE at fsmchk root
 \end{verbatim}
 \begin{code}
 module Acceptance (
-  scan
+  Outcome
+, showOutcome
+, summariseOutcome
+, scan
 )
 where
 import Data.Set (Set)
@@ -35,10 +38,35 @@ We have two outcomes:
     and we return the remaining sequence, whose head is the unacceptable event,
     and the rejecting state.
 \end{enumerate}
-We define a function that tries to accept a sequence,
-and returns the last state and remaining events when it is done.
+We have an outcome that consists of the last state and remaining events:
 \begin{code}
-scan :: Ord asd => NDFSM asd -> State -> [Event asd] -> (State, [Event asd])
+type Outcome asd = (State, [Event asd])
+\end{code}
+
+\begin{code}
+showOutcome what (laststate,remainingEvents)
+  = do putStrLn (what++"\nLast State: "++laststate)
+       putStrLn ("Remaining:\n"++unlines (map showEventName remainingEvents))
+\end{code}
+
+CSV output
+\begin{code}
+summariseOutcome what (laststate,remainingEvents)
+  = concat [
+      field what
+    , field laststate
+    , summariseRemaining remainingEvents
+    ]
+summariseRemaining [] = field "."
+summariseRemaining (evt:_) = field (showEventName evt)
+
+field str = ',':str
+\end{code}
+
+We define a function that tries to accept a sequence,
+and returns the outcome.
+\begin{code}
+scan :: Ord asd => NDFSM asd -> State -> [Event asd] -> Outcome asd
 scan ndfsm s [] = (s,[])
 scan ndfsm s es@(evt:evts)
  = case M.lookup s ndfsm of
@@ -50,7 +78,7 @@ scan ndfsm s es@(evt:evts)
 \end{code}
 We have non-determinism, so we have to try all possible next-states:
 \begin{code}
-scans :: Ord asd => NDFSM asd -> [State] -> [Event asd] -> (State, [Event asd])
+scans :: Ord asd => NDFSM asd -> [State] -> [Event asd] -> Outcome asd
 scans _ [] evts = error "scans: next states should not be empty!"
 scans ndfsm [n] evts = scan ndfsm n evts
 scans ndfsm (n:ns) evts

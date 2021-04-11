@@ -15,6 +15,9 @@ module COSP2 (
 , checkProduceActivity
 , checkConsumeActivity
 , checkThreadMgmt
+, COSP2Outcomes
+, showCOSP2Outcomes
+, summariseCOSP2Outcomes
 , fullAnalysisCOSP2IdentifierUsage
 )
 where
@@ -365,39 +368,52 @@ cosP2ids = S.fromList [
 \section{Full Identifier Usage Analysis}
 
 \begin{code}
-fullAnalysisCOSP2IdentifierUsage :: String -> IO ()
+data COSP2Outcomes
+ = COSP2Outcomes {
+     mutexinit       :: Outcome ()
+   , condinit        :: Outcome ()
+   , produceactivity :: Outcome ()
+   , consumeactivity :: Outcome ()
+   , threadmgmt      :: Outcome ()
+   , sleepavoidance  :: Outcome ()
+   }
+\end{code}
+
+\begin{code}
+showCOSP2Outcomes which outcomes
+  = do putStrLn ("\n"++which++"\n")
+       showOutcome "MUTEX-INIT" $ mutexinit outcomes
+       showOutcome "COND-INIT" $ condinit outcomes
+       showOutcome "PRODUCER-ACTIVITY" $ produceactivity outcomes
+       showOutcome "CONSUMER-ACTIVITY" $ consumeactivity outcomes
+       showOutcome "THREAD-MGMT" $ threadmgmt outcomes
+       showOutcome "SLEEP-AVOIDANCE" $ sleepavoidance outcomes
+\end{code}
+
+\begin{code}
+summariseCOSP2Outcomes who outcomes
+  = do putStr $ concat
+        [ who
+        , summariseOutcome "MTXINI" $ mutexinit outcomes
+        , summariseOutcome "CNDINI" $ condinit outcomes
+        , summariseOutcome "PROD" $ produceactivity outcomes
+        , summariseOutcome "CONS" $ consumeactivity outcomes
+        , summariseOutcome "THREADS" $ threadmgmt outcomes
+        , summariseOutcome "SLEEP" $ sleepavoidance outcomes ]
+\end{code}
+
+
+\begin{code}
+fullAnalysisCOSP2IdentifierUsage :: String -> IO COSP2Outcomes
 fullAnalysisCOSP2IdentifierUsage filename
-  = do putStrLn ("\n===================================\n ANALYSIS OF "
-                    ++filename++
-                 "\n-----------")
-
-       calls <- fmap lines $ readFile filename
+  = do calls <- fmap lines $ readFile filename
        let callEvts = catMaybes $ map eparse calls
-       putStrLn ("Call Events:\n"++unlines (map showCE callEvts))
        let callNames = prepareCOSP2IdentUsage callEvts
-       putStrLn ("Call Names:\n"++unlines (map showEventName callNames))
-
-       let (laststate,remainingEvents) = checkMutexInit callEvts
-       putStrLn ("MUTEX-INIT\nLast State: "++laststate)
-       putStrLn ("Remaining:\n"++unlines (map showEventName remainingEvents))
-
-       let (laststate,remainingEvents) = checkCondInit callEvts
-       putStrLn ("COND-INIT\nLast State: "++laststate)
-       putStrLn ("Remaining:\n"++unlines (map showEventName remainingEvents))
-
-       let (laststate,remainingEvents) = checkProduceActivity callEvts
-       putStrLn ("PRODUCER-ACTIVITY\nLast State: "++laststate)
-       putStrLn ("Remaining:\n"++unlines (map showEventName remainingEvents))
-
-       let (laststate,remainingEvents) = checkConsumeActivity callEvts
-       putStrLn ("CONSUMER-ACTIVITY\nLast State: "++laststate)
-       putStrLn ("Remaining:\n"++unlines (map showEventName remainingEvents))
-
-       let (laststate,remainingEvents) = checkThreadMgmt callEvts
-       putStrLn ("THREAD-MGMT\nLast State: "++laststate)
-       putStrLn ("Remaining:\n"++unlines (map showEventName remainingEvents))
-
-       let (laststate,remainingEvents) = checkSleepAvoidance callEvts
-       putStrLn ("SLEEP-AVOIDANCE\nLast State: "++laststate)
-       putStrLn ("Remaining:\n"++unlines (map showEventName remainingEvents))
+       return ( COSP2Outcomes
+                  (checkMutexInit callEvts)
+                  (checkCondInit callEvts)
+                  (checkProduceActivity callEvts)
+                  (checkConsumeActivity callEvts)
+                  (checkThreadMgmt callEvts)
+                  (checkSleepAvoidance callEvts) )
 \end{code}

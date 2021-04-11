@@ -15,6 +15,8 @@
 
 \def\FSMcheck{\textit{\textsf{fsmchk}}}
 \def\FSMcheckVersion{0.0.1.0}
+\def\FSMforPtwo{\textit{\textsf{p2fsm}}}
+\def\FSMforPtwoVersion{0.0.1.0}
 
 \author{
 Andrew Butterfield
@@ -22,8 +24,9 @@ Andrew Butterfield
 {\small \copyright\ 2021}
 }
 \title{
-  \FSMcheck: FMS-based sequence checking
+  \FSMcheck: FSM-based sequence checking
   \\(v\FSMcheckVersion)
+\\ Incorporating \FSMforPtwo\ \FSMforPtwoVersion.
 }
 \date{
 \today
@@ -36,7 +39,8 @@ Andrew Butterfield
 \tableofcontents
 
 
-\input{app/Main.lhs}
+\newpage\input{chkapp/Main.lhs}
+\newpage\input{cosp2app/Main.lhs}
 
 
 \input{src/Events.lhs}
