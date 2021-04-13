@@ -123,9 +123,12 @@ mutexInitOnly = restrictEvents mutexInitEvents
 mutexInitSpec :: [FSMTriple ()]
 mutexInitSpec = map liftT [
     ("S0","PTHREAD_MUTEX_INITIALIZER","S1")
-  , ("S0","main","S2")
-  , ("S1","main","OK")
-  , ("S2","pthread_mutex_init","OK")
+  , ("S0","main","S3")
+  , ("S1","PTHREAD_MUTEX_INITIALIZER","S2")
+  , ("S1","main","OK1")
+  , ("S2","main","OK2")
+  , ("S3","pthread_mutex_init","OK1")
+  , ("OK1","pthread_mutex_init","OK2")
   ]
 mutexInitFSM = buildNDFSM mutexInitSpec
 \end{code}
