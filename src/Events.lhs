@@ -47,7 +47,7 @@ showEventName (E name _) = name
 We have a type class for event parsers:
 \begin{code}
 class EventParser asd where
-  eparse :: Monad m => String -> m (Event asd)
+  eparse :: MonadFail m => String -> m (Event asd)
 \end{code}
 with an instance for events without data:
 \begin{code}
